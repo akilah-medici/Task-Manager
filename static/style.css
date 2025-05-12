@@ -1,4 +1,4 @@
-html{
+html {
     font-family: "Noto Sans JP", serif;
     font-optical-sizing: auto;   
 }
@@ -12,8 +12,8 @@ html{
     display: flex;
     justify-content: center;
     align-items: center;
-    border: 2px solid black;
-    border-radius: 1%;
+    border: 5px solid black;
+    background-color: white;
 }
 .priority {
     padding: 10%;
@@ -45,6 +45,7 @@ html{
     padding: 2%;
     margin: 5%;
     border: 3px solid black;
+    background-color: white;
 }
 .button:hover{
     cursor: pointer;
@@ -63,9 +64,36 @@ html{
     background-color: #384CFC;
     color: white;
 }
-
 .all_tasks {
-    background-color: transparent;
+    background-color: white;
     text-align: center;
     padding: 10px;
+}
+.all_tasks:hover {
+    background: linear-gradient(90deg, red 0%, red 25%, #384CFC 25%, #384CFC 50%, seagreen 50%, seagreen 75%, lightsalmon 75%, lightsalmon 100%);
+    background-size: 200% 100%;
+    animation: change_colors 3s infinite;
+    color: white;
+}
+body {
+    background: linear-gradient(0deg, red 0%, red 25%, #384CFC 25%, #384CFC 50%, seagreen 50%, seagreen 75%, lightsalmon 75%, lightsalmon 100%);
+    background-size: 100% 1000px;
+    animation: change_background_colors 10s infinite;
+}
+
+@keyframes change_colors {
+  0%{
+    background-position: 0% 0%;
+  }
+  100%{
+    background-position: 200% 0%;
+  }
+}
+@keyframes change_background_colors {
+  0%{
+    background-position: 0% 0%;
+  }
+  100%{
+    background-position: 0% 1000px;
+  }
 }

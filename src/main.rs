@@ -4,6 +4,9 @@ use serde_json::from_reader;
 use serde::{Serialize, Deserialize};
 use std::io;
 use std::io::Write;
+use axum::{Router, routing::get_service};
+use tower_http::services::ServeDir;
+use std::net::SocketAddr;
 
 #[derive(Serialize, Deserialize)]
 #[derive(Debug)]
@@ -12,6 +15,7 @@ struct Task{
     description: String,
     state: bool
 }
+
 impl Task{
     fn check_uncheck_task(&mut self,st: bool){
         self.state = st;
@@ -27,8 +31,8 @@ impl Task{
     }
 }
 
-fn main() {
-    let mut tasks:Vec<Task> = load_from_file();
+fn main(){
+    
 }
 
 fn create_task() -> Task{

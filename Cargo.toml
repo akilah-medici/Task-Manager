@@ -4,8 +4,9 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-serde = { version = "1.0.128", features = ["derive"] }
-serde_json = "1.0.117"# Versão alterada para 1.0.117 pois o compilador acusa a inexistencia ou não publicação da versão 1.0.210
 axum = "0.7"
 tokio = { version = "1.37", features = ["full"] }
 tower-http = { version = "0.5", features = ["fs"] }
+allow = "0.1.5"
+serde = { version = "1.0.219", features = ["derive"] }
+serde_json = "1.0.140"

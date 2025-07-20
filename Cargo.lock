@@ -18,6 +18,40 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "512761e0bb2578dd7380c6baaa0f4ce03e84f95e960231d1dec8bf4d7d6e2627"
 
 [[package]]
+name = "allow"
+version = "0.1.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6fad09d541c8af41a9345db853e5c06c22d1538c9616c5cfccd770af271a837f"
+dependencies = [
+ "allow_prefixed",
+ "paste",
+ "rustversion",
+]
+
+[[package]]
+name = "allow_internal"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "26b9fa99db5c9e67973d584c68b7ec656f13e78d0e38c2f19f4ea9ec2226f58b"
+
+[[package]]
+name = "allow_prefixed"
+version = "0.1.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "26fb50b66506d35aa82eff075f7128c2536ba54c4db450c4963170bfc3fa60a1"
+dependencies = [
+ "allow_internal",
+ "cargo-toolchain",
+ "rustversion",
+]
+
+[[package]]
+name = "anyhow"
+version = "1.0.98"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e16d2d3311acee920a9eb8d33b8cbc1787ce4a264e85f964c2404b969bdcd487"
+
+[[package]]
 name = "async-trait"
 version = "0.1.88"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -115,6 +149,15 @@ name = "bytes"
 version = "1.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d71b6127be86fdcfddb610f7182ac57211d4b18a3e9c82eb2d17662f2227ad6a"
+
+[[package]]
+name = "cargo-toolchain"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c297ef0c1eef089de47cc2bdb895ad1e91e7e712583a8b4a63a77fabae9ee0f5"
+dependencies = [
+ "anyhow",
+]
 
 [[package]]
 name = "cfg-if"
@@ -384,6 +427,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "paste"
+version = "1.0.15"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "57c0d7b74b563b49d38dae00a0c37d4d6de9b432382b2892f0574ddcae73fd0a"
+
+[[package]]
 name = "percent-encoding"
 version = "2.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -552,6 +601,7 @@ checksum = "0bf256ce5efdfa370213c1dabab5935a12e49f2c58d15e9eac2870d3b4f27263"
 name = "task_manager"
 version = "0.1.0"
 dependencies = [
+ "allow",
  "axum",
  "serde",
  "serde_json",

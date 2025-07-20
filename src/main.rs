@@ -1,12 +1,17 @@
-use std::fs::File;
+use std::io::{BufReader, BufWriter};
+use std::{fs,fs::File};
+use std::path::{Path,PathBuf};
 use serde_json::to_writer;
 use serde_json::from_reader;
 use serde::{Serialize, Deserialize};
-use std::io;
-use std::io::Write;
-use axum::{Router, routing::get_service};
+use axum::{routing::get, response::Html, extract::State};
+use tokio;
 use tower_http::services::ServeDir;
-use std::net::SocketAddr;
+use std::sync::Arc; 
+
+mod errors;
+use errors::Errors;
+
 
 #[derive(Serialize, Deserialize)]
 #[derive(Debug)]
@@ -15,9 +20,15 @@ struct Task{
     description: String,
     state: bool
 }
-
 impl Task{
-    fn check_uncheck_task(&mut self,st: bool){
+    async fn new(nm: String, desc: String, st: bool) -> Task{
+        Task{
+            name : nm,
+            description : desc,
+            state : st,
+        }
+    }
+    async fn check_uncheck_task(&mut self,st: bool){
         self.state = st;
     }
     fn to_string(&self) -> String{
@@ -31,47 +42,96 @@ impl Task{
     }
 }
 
-fn main(){
-    
+#[derive(Serialize, Deserialize)]
+#[derive(Debug)]
+struct ListTasks{
+    data: Vec<Task>,
+    path: PathBuf
 }
-
-fn create_task() -> Task{
-    let nm;
-    let des;
-
-    println!("Nome da tarefa:");
-    nm = read_input();
-
-    println!("Descrição da tarefa:");
-    des = read_input();
-    
-    Task { name: (nm), description: (des), state: (false) }
-}
-
-fn remove_task(vec: &mut Vec<Task>, name: String){
-    let nm;
-    println!("Nome da tarefa a ser removida:");
-    nm = read_input();
-
-    for i in 0..vec.len(){
-        if vec[i].name.to_uppercase() == name.to_uppercase(){
-            vec.remove(i);
-        }
+impl ListTasks{
+    async fn create_task(&mut self, nm: String, ds: String, st: bool){
+        self.data.push(Task::new(nm,ds,st).await);
+    }
+    async fn list_tasks(&self){
+        println!("{:?}",self.data);
+    }
+    fn load_from_file(&mut self) -> Result<(), Errors>{
+        let file = File::open(&self.path).map_err(|err| {
+            let error = Errors::FileNotFound(err.to_string());
+            println!("Error: {:?}", error);
+            error
+        })?;
+        let reader = BufReader::new(file);
+        let data = serde_json::from_reader(reader).map_err(|err| {
+            let error = Errors::FileError(err.to_string());
+            println!("Error: {:?}", error);
+            error
+        })?;
+        Ok(self.data = data)
+    }
+    async fn save_to_file(&mut self) -> Result<(), Errors>{
+        let file = match File::open(&self.path){
+            Ok(file) => file,
+            Err(err) => {
+                let error = Errors::FileNotFound(err.to_string());
+                println!("Error: {:?}, creating correspondent file.", error);
+                File::create(&self.path).map_err(|err| {
+                    let error = Errors::FileNotFound(err.to_string());
+                    println!("Error: {:?}, on creating file.", error);
+                    error
+                })?
+            }
+        };
+        let writer = BufWriter::new(file);
+        serde_json::to_writer(writer, &self.data).map_err(|err|{
+            let error = Errors::FileError(err.to_string());
+            println!("Error: {:?}", error);
+            error
+        })?;
+        Ok(())
     }
 }
 
-fn save_to_file(vec: Vec<Task>){
-    let file = File::create("tasks.json").expect("Erro ao criar arquivo");
-    to_writer(file, &vec).expect("Erro ao salvar dados em JSON");
+#[tokio::main]
+async fn main(){
+
+    let mut vec_tasks = ListTasks{
+        data: Vec::new(),
+        path: PathBuf::from("tasks.json")
+    };
+    match vec_tasks.load_from_file(){
+        Ok(_) => println!("File load successefuly!"),
+        Err(err) => {
+            println!("Error on load file: {:?}",err);
+        }
+    }
+    vec_tasks.list_tasks().await;
+
+    let shared_state = Arc::new(vec_tasks); 
+
+    let addr = String::from("127.0.0.1:3000");
+    let app = axum::Router::new()
+        // .route("/task/list", get(|| async {
+        //    println!("Criou task")
+        // }))
+        .route("/task/list", get(list_tasks_handler))
+        .with_state(shared_state.clone())
+        //.route("task/list", get(|| async {println!("peido")}))
+        .route("/",get(serve_index))
+        .nest_service("/static", ServeDir::new("static"));
+
+    let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
+    println!("servidor rodando em: {}",&addr);
+
+    axum::serve(listener,app).await.unwrap();
 }
 
-fn load_from_file() -> Vec<Task> {
-    let file = File::open("tasks.json").expect("Erro ao abrir arquivo");
-    from_reader(file).expect("Erro ao carregar dados do JSON")
+async fn serve_index() -> Html<String> {
+    let html = fs::read_to_string("static/index.html").unwrap_or_else(|_| {
+        "<h1>Erro: index.html não encontrado.</h1>".into()
+    });
+    Html(html)
 }
-
-fn read_input() -> String {
-    let mut input = String::new();
-    io::stdin().read_line(&mut input).expect("Falha ao ler a entrada");
-    input.trim().to_string()
+async fn list_tasks_handler(State(state): State<Arc<ListTasks>>) {
+    state.list_tasks().await;
 }

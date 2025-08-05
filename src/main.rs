@@ -1,7 +1,6 @@
-use std::fs;
 use std::path::PathBuf;
-use axum::{routing::get, response::Html};
-use tokio;
+use axum::{routing::{get, post}};
+use tokio::{sync::Mutex};
 use tower_http::services::ServeDir;
 use std::sync::Arc; 
 
@@ -27,11 +26,13 @@ async fn main(){
         }
     }
 
-    let shared_state = Arc::new(vec_tasks); 
+    let shared_state = Arc::new(Mutex::new(vec_tasks)); 
 
-    let addr = String::from("0.0.0.0:3000");
+    let addr = String::from("127.0.0.1:3000");
     let app = axum::Router::new()
         .route("/task/list", get(list_tasks_handler))
+        .route("/task/create", get(serve_create_task))
+        .route("/task/create/accept", post(get_response))
         .with_state(shared_state.clone())
         .route("/",get(serve_index))
         .nest_service("/static", ServeDir::new("static"));
@@ -42,11 +43,3 @@ async fn main(){
     axum::serve(listener,app).await.unwrap();
 }
 
-async fn serve_index() -> Html<String> {
-    let html = fs::read_to_string("static/index.html").unwrap_or_else(|err| {
-        let error = Errors::FileNotFound(err.to_string());
-        println!("error: {:?}", error);
-        "<h1>Erro: index.html não encontrado.</h1>".to_string()
-    });
-    Html(html)
-}

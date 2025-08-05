@@ -2,9 +2,12 @@ use std::io::{BufReader, BufWriter};
 use std::fs::File;
 use std::path::PathBuf;
 use serde::{Serialize, Deserialize};
+//use std::ops::{Deref, DerefMut};
 
 use super::task::Task;
 use crate::errors::Errors;
+
+
 
 #[derive(Serialize, Deserialize, Clone)]
 #[derive(Debug)]
@@ -56,3 +59,17 @@ impl ListTasks{
         Ok(())
     }
 }
+
+// impl Deref for ListTasks {
+//     type Target = Vec<Task>;
+
+//     fn deref(&self) -> &Self::Target {
+//         &self.data
+//     }
+// }
+
+// impl DerefMut for ListTasks {
+//     fn deref_mut(&mut self) -> &mut Self::Target {
+//         &mut self.data
+//     }
+// }

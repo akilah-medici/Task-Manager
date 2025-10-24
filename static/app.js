@@ -87,6 +87,12 @@ async function initPage() {
             createTaskPage();
         });
     }
+    const deleteTaskBtn = document.querySelector(".delete_task");
+    if (deleteTaskBtn) {
+        deleteTaskBtn.addEventListener("click", async () => {
+            deleteTaskPage();
+        });
+    }
 }
 
 async function createTaskPage() {
@@ -94,6 +100,33 @@ async function createTaskPage() {
     const html = await response.text();
     document.querySelector("#conteiner").innerHTML = html;
 
+    const backBtn = document.querySelector(".back");
+    if (backBtn) {
+        backBtn.addEventListener("click", async () => {
+            const response = await fetch("/");
+            const html = await response.text();
+            document.querySelector("#conteiner").innerHTML = html;
+            initPage();
+        });
+    }
+    const printtask = document.querySelector(".accept");
+    if (printtask) {
+        printtask.addEventListener("click", async () => {
+            getResponse();
+            const response = await fetch("/");
+            const html = await response.text();
+            document.querySelector("#conteiner").innerHTML = html;
+            initPage();
+        });
+    }
+}
+
+async function deleteTaskPage() {
+    const response = await fetch("/task/delete");
+    const html = await response.text();
+    loadTasks();
+    document.querySelector("#conteiner").innerHTML = html;
+    document.querySelector(".task_list").style.display = "block";
     const backBtn = document.querySelector(".back");
     if (backBtn) {
         backBtn.addEventListener("click", async () => {

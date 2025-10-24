@@ -27,6 +27,14 @@ pub async fn serve_create_task() -> Html<String> {
     });
     Html(html)
 }
+pub async fn serve_delete_task() -> Html<String> {
+    let html = fs::read_to_string("static/delete_task.html").unwrap_or_else(|err| {
+        let error = Errors::FileNotFound(err.to_string());
+        println!("error: {:?}", error);
+        "<h1>Erro: delete_task.html não encontrado.</h1>".to_string()
+    });
+    Html(html)
+}
 #[axum::debug_handler]
 pub async fn get_response(State(state): State<Arc<Mutex<ListTasks>>>, Json(tsk): Json<Task>) -> impl IntoResponse {
     let mut lt = state.lock().await;

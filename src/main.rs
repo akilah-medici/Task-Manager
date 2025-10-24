@@ -33,6 +33,7 @@ async fn main(){
         .route("/task/list", get(list_tasks_handler))
         .route("/task/create", get(serve_create_task))
         .route("/task/create/accept", post(get_response))
+        .route("/task/delete", get(serve_delete_task))
         .with_state(shared_state.clone())
         .route("/",get(serve_index))
         .nest_service("/static", ServeDir::new("static"));
